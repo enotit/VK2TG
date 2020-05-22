@@ -8,6 +8,7 @@ namespace VK12TG{
     {
     public static string login = "change_this"; 
     public static string password = "change_this";
+    public static string API_telegram = "change_this";
     }
 }
 ```
