@@ -1,4 +1,5 @@
 bin/
 obj/
+.vscode/
 /VK2TG.csproj
 INFORMATION.cs
