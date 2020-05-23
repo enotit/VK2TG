@@ -34,7 +34,7 @@ namespace VK2TG
                     else
                     {
                         var p = Program._api.Users.Get(new long[] { (long)Check.Items[0].LastMessage.FromId }).FirstOrDefault();
-                        Program.sms($"id{p.Id} '{(id > big ? Program._api.Messages.GetChat(new long[] { (long)(id - big) }).FirstOrDefault().Title : "")}' {p.FirstName} {p.LastName}:\n{text}");
+                        Program.sms($"id{p.Id} {(id > big ? $"'{Program._api.Messages.GetChat(new long[] { (long)(id - big) }).FirstOrDefault().Title}'" : "")} {p.FirstName} {p.LastName}:\n{text}");
                     }
                     Program.LastCheck = Check;
                 }
