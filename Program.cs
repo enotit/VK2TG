@@ -33,7 +33,7 @@ namespace VK2TG
             });
             LastCheck = _api.Messages.GetConversations(new GetConversationsParams
             {
-                Count = 5,
+                Count = 1,
                 Filter = VkNet.Enums.SafetyEnums.GetConversationFilter.Unread
             });
             var a = LastCheck.Items.Count;
