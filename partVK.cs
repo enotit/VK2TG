@@ -1,18 +1,14 @@
 using System.Threading;
-using System.Threading.Tasks;
-using System;
 using System.Linq;
-using VkNet;
-using VkNet.Model;
-using VkNet.Abstractions;
-using VkNet.AudioBypassService.Extensions;
+using System;
 using VkNet.Model.RequestParams;
 
 namespace VK2TG
 {
     class partVK
     {
-        public static /* async */ void Start()
+        public static Random rnd = new Random();
+        public static void Start()
         {
             long big = 2000000000;
             while (true)
@@ -22,25 +18,51 @@ namespace VK2TG
                     Count = 1,
                     Filter = VkNet.Enums.SafetyEnums.GetConversationFilter.Unread
                 });
-                var now = Program._api.Utils.GetServerTime().AddMilliseconds(250); var last_mes_date = Check.Items[0].LastMessage.Date;
-                if ((Program.LastCheck.Items[0].LastMessage.Text != Check.Items[0].LastMessage.Text) & (now > last_mes_date))
+                var now = Program._api.Utils.GetServerTime(); var last_mes_date = (DateTime)Check.Items[0].LastMessage.Date;
+                if ((Program.LastCheck.Items[0].LastMessage.Text != Check.Items[0].LastMessage.Text) && ((now > last_mes_date) && (now.AddSeconds(-2) < last_mes_date)))
                 {
                     var text = Check.Items[0].LastMessage.Text;
                     var id = Check.Items[0].LastMessage.PeerId;
                     if (id < 0)
                     {
-                        Program.sms($"id{id} {Program._api.Groups.GetById(null, (id * -1).ToString(), null).FirstOrDefault().Name}\n{text}");
+                        partTG.sms($"id{id} {Program._api.Groups.GetById(null, (id * -1).ToString(), null).FirstOrDefault().Name}:\n{text}");
                     }
                     else
                     {
                         var p = Program._api.Users.Get(new long[] { (long)Check.Items[0].LastMessage.FromId }).FirstOrDefault();
-                        Program.sms($"id{p.Id} {(id > big ? $"'{Program._api.Messages.GetChat(new long[] { (long)(id - big) }).FirstOrDefault().Title}'" : "")} {p.FirstName} {p.LastName}:\n{text}");
+                        if (id > big)
+                        {
+                            partTG.sms($"id{id} '{Program._api.Messages.GetChat(new long[] { (long)(id - big) }).FirstOrDefault().Title}' - id{p.Id} {p.FirstName} {p.LastName}:\n{text}");
+                        }
+                        else
+                        {
+                            partTG.sms($"id{p.Id} {p.FirstName} {p.LastName}:\n{text}");
+                        }
                     }
                     Program.LastCheck = Check;
                 }
-                Thread.Sleep(300);
             }
 
+
+
+        }
+
+        public static void sms(long? id, string message)
+        {
+            if (id > 2000000000 || id < 0)
+                Program._api.Messages.Send(new VkNet.Model.RequestParams.MessagesSendParams
+                {
+                    RandomId = rnd.Next(1, 1000 * 255), // уникальный
+                    PeerId = id,
+                    Message = message
+                });
+            else
+                Program._api.Messages.Send(new VkNet.Model.RequestParams.MessagesSendParams
+                {
+                    RandomId = rnd.Next(1, 1000 * 255), // уникальный
+                    UserId = id,
+                    Message = message
+                });
         }
     }
 }

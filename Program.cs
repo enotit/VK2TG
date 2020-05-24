@@ -25,29 +25,20 @@ namespace VK2TG
             Random rnd = new Random();
             AuthorizeVK();
             AuthorizeTelegram();
-            _api.Messages.Send(new VkNet.Model.RequestParams.MessagesSendParams
-            {
-                RandomId = rnd.Next(1, 1000 * 255), // уникальный
-                UserId = _api.UserId,
-                Message = "Start..."
-            });
+            
             LastCheck = _api.Messages.GetConversations(new GetConversationsParams
             {
                 Count = 1,
                 Filter = VkNet.Enums.SafetyEnums.GetConversationFilter.Unread
             });
             var a = LastCheck.Items.Count;
-            sms("Start work");
-            partVK.Start();
+            // partVK.Start();
+            Thread thread1 = new Thread(partVK.Start);
+            Thread thread2 = new Thread(partTG.Start);
+            thread1.Start();
+            thread2.Start();
         }
-        public static async void sms(string text)
-        {
-            await tg_api.SendTextMessageAsync(
-                chatId: Users_information.telegram_ID,
-                text: text
-                );
-
-        }
+        
         private static void AuthorizeVK()
         {
             // Псевдо ВК апи, для обхода блокировки ВК
@@ -66,9 +57,7 @@ namespace VK2TG
         {
             tg_api = new TelegramBotClient(Users_information.API_telegram);
             var me = tg_api.GetMeAsync().Result;
-            Console.WriteLine(
-            $"Hello, World! I am user {me.Id} and my name is {me.FirstName}."
-            );
+            Console.WriteLine($"Hello, World! I am user {me.Id} and my name is {me.FirstName}.");
         }
     }
 }
