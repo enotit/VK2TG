@@ -29,33 +29,33 @@ namespace VK2TG
                     var text = message.Text;
                     if (message.Action != null) text = "* Произошли в беседе изменения.";
                     var id = message.PeerId;
-                    // Проверка на вложения
-                    if (message.Attachments != null)
-                    {
-                        foreach (var i in message.Attachments)
-                        {
-                            using (var webClient = new WebClient())
-                            {
-                                 if (i.Type == typeof(Photo)) webClient.DownloadFile((i.Instance as Photo).Sizes[(i.Instance as Photo).Sizes.Count - 1].Url.AbsoluteUri.ToString(), $"{rnd.Next(99999)}.jpg");
-                            }
-                        }
-                    }
+                    string end_text;
                     if (id < 0)
                     {
-                        partTG.sms($"id{id} {Program._api.Groups.GetById(null, (id * -1).ToString(), null).FirstOrDefault().Name}:\n{text}");
+                        end_text = $"id{id} {Program._api.Groups.GetById(null, (id * -1).ToString(), null).FirstOrDefault().Name}:\n{text}";
                     }
                     else
                     {
                         var p = Program._api.Users.Get(new long[] { (long)Check.Items[0].LastMessage.FromId }).FirstOrDefault();
                         if (id > big)
                         {
-                            partTG.sms($"id{id} '{Program._api.Messages.GetChat(new long[] { (long)(id - big) }).FirstOrDefault().Title}' - id{p.Id} {p.FirstName} {p.LastName}:\n{text}");
+                            end_text = $"id{id} '{Program._api.Messages.GetChat(new long[] { (long)(id - big) }).FirstOrDefault().Title}' - id{p.Id} {p.FirstName} {p.LastName}:\n{text}";
                         }
                         else
                         {
-                            partTG.sms($"id{p.Id} {p.FirstName} {p.LastName}:\n{text}");
+                            end_text = $"id{p.Id} {p.FirstName} {p.LastName}:\n{text}";
                         }
                     }
+                    if (message.Attachments.Count == 0) partTG.sms(end_text);
+                    else if (message.Attachments.Count == 1) partTG.sms_photo((message.Attachments[0].Instance as Photo).Sizes[(message.Attachments[0].Instance as Photo).Sizes.Count - 1].Url.AbsoluteUri.ToString(), end_text);
+                    else
+                        foreach (var i in message.Attachments)
+                        {
+                            using (var webClient = new WebClient())
+                            {
+                                partTG.sms_photo((i.Instance as Photo).Sizes[(i.Instance as Photo).Sizes.Count - 1].Url.AbsoluteUri.ToString(), Convert.ToString(id));
+                            }
+                        }
                     Program.LastCheck = Check;
                 }
             }
