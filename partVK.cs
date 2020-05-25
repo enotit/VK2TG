@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using System.Net;
 using System.IO;
+using VkNet.Model.Attachments;
 using VkNet.Model.RequestParams;
 
 namespace VK2TG
@@ -24,9 +25,21 @@ namespace VK2TG
                 var now = Program._api.Utils.GetServerTime(); var last_mes_date = (DateTime)Check.Items[0].LastMessage.Date;
                 if ((Program.LastCheck.Items[0].LastMessage.Text != Check.Items[0].LastMessage.Text) && ((now > last_mes_date) && (now.AddSeconds(-3) < last_mes_date)))
                 {
-                    var text = Check.Items[0].LastMessage.Text;
-                    if (Check.Items[0].LastMessage.Action != null) text = "* Произошли в беседе изменения.";
-                    var id = Check.Items[0].LastMessage.PeerId;
+                    var message = Check.Items[0].LastMessage;
+                    var text = message.Text;
+                    if (message.Action != null) text = "* Произошли в беседе изменения.";
+                    var id = message.PeerId;
+                    // Проверка на вложения
+                    if (message.Attachments != null)
+                    {
+                        foreach (var i in message.Attachments)
+                        {
+                            using (var webClient = new WebClient())
+                            {
+                                 if (i.Type == typeof(Photo)) webClient.DownloadFile((i.Instance as Photo).Sizes[(i.Instance as Photo).Sizes.Count - 1].Url.AbsoluteUri.ToString(), $"{rnd.Next(99999)}.jpg");
+                            }
+                        }
+                    }
                     if (id < 0)
                     {
                         partTG.sms($"id{id} {Program._api.Groups.GetById(null, (id * -1).ToString(), null).FirstOrDefault().Name}:\n{text}");
