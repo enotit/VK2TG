@@ -1,6 +1,9 @@
 using System.Threading;
+using System.Threading.Tasks;
 using System.Linq;
 using System;
+using System.Net;
+using System.IO;
 using VkNet.Model.RequestParams;
 
 namespace VK2TG
@@ -19,9 +22,10 @@ namespace VK2TG
                     Filter = VkNet.Enums.SafetyEnums.GetConversationFilter.Unread
                 });
                 var now = Program._api.Utils.GetServerTime(); var last_mes_date = (DateTime)Check.Items[0].LastMessage.Date;
-                if ((Program.LastCheck.Items[0].LastMessage.Text != Check.Items[0].LastMessage.Text) && ((now > last_mes_date) && (now.AddSeconds(-2) < last_mes_date)))
+                if ((Program.LastCheck.Items[0].LastMessage.Text != Check.Items[0].LastMessage.Text) && ((now > last_mes_date) && (now.AddSeconds(-3) < last_mes_date)))
                 {
                     var text = Check.Items[0].LastMessage.Text;
+                    if (Check.Items[0].LastMessage.Action != null) text = "* Произошли в беседе изменения.";
                     var id = Check.Items[0].LastMessage.PeerId;
                     if (id < 0)
                     {

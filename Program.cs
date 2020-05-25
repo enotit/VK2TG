@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,23 +23,21 @@ namespace VK2TG
         public static TelegramBotClient tg_api;
         static void Main(string[] args)
         {
-            Random rnd = new Random();
             AuthorizeVK();
             AuthorizeTelegram();
-            
+
             LastCheck = _api.Messages.GetConversations(new GetConversationsParams
             {
                 Count = 1,
                 Filter = VkNet.Enums.SafetyEnums.GetConversationFilter.Unread
             });
             var a = LastCheck.Items.Count;
-            // partVK.Start();
             Thread thread1 = new Thread(partVK.Start);
             Thread thread2 = new Thread(partTG.Start);
             thread1.Start();
             thread2.Start();
         }
-        
+
         private static void AuthorizeVK()
         {
             // Псевдо ВК апи, для обхода блокировки ВК
